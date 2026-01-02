@@ -55,7 +55,7 @@ PORT=3000
 
 # MongoDB Connection String (Atlas or Local)
 # For Atlas, ensure IP Access List allows your IP or 0.0.0.0/0
-MONGODB_URI=mongodb+srv://<user>:<password>@cluster0.example.mongodb.net/my-db?retryWrites=true&w=majority
+MONGODB_URL=mongodb+srv://<user>:<password>@cluster0.example.mongodb.net/my-db?retryWrites=true&w=majority
 
 # JWT Secrets
 JWT_SECRET=your_super_secret_key_here
@@ -107,7 +107,7 @@ git push origin main
 4.  **Environment Variables:** You MUST add all variables from your `.env` file into Vercel settings.
     *   `VERCEL` = `true`
     *   `NODE_ENV` = `production`
-    *   `MONGODB_URI` = `mongodb+srv://...`
+    *   `MONGODB_URL` = `mongodb+srv://...`
     *   `JWT_SECRET` = `...`
     *   `SMTP_HOST`, `SMTP_PORT`, etc. (Required!)
 5.  **Click Deploy.**
@@ -124,7 +124,7 @@ If you prefer a containerized environment with persistent data, follow these ste
 
 ### 1. Create Docker Environment File
 Create a file named `.env.docker`.
-> **Important:** The `MONGODB_URI` must point to the container name (`restapi_express_nosql_db_container`), not localhost.
+> **Important:** The `MONGODB_URL` must point to the container name (`restapi_express_nosql_db_container`), not localhost.
 
 ```env
 # .env.docker
@@ -133,7 +133,7 @@ NODE_ENV=production
 PORT=5005
 
 # Connect to the MongoDB Container Name
-MONGODB_URI=mongodb://restapi_express_nosql_db_container:27017/express_nosql_db
+MONGODB_URL=mongodb://restapi_express_nosql_db_container:27017/express_nosql_db
 
 JWT_SECRET=docker_production_secret
 JWT_ACCESS_EXPIRATION_MINUTES=30

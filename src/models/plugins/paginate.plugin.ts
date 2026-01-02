@@ -1,4 +1,4 @@
-import { Schema, Document, Model } from 'mongoose';
+import { Schema, Document } from 'mongoose';
 
 export interface QueryResult {
   results: Document[];
@@ -11,15 +11,21 @@ export interface QueryResult {
 export const paginate = (schema: Schema) => {
   schema.statics.paginate = async function (filter: Record<string, any>, options: Record<string, any>): Promise<QueryResult> {
     let sort = '';
+    
     if (options.sortBy) {
       const sortingCriteria: any[] = [];
       options.sortBy.split(',').forEach((sortOption: string) => {
-        const [key, order] = sortOption.split(':');
+        let [key, order] = sortOption.split(':');
+        
+        if (key === 'id') {
+          key = '_id';
+        }
+
         sortingCriteria.push((order === 'desc' ? '-' : '') + key);
       });
       sort = sortingCriteria.join(' ');
     } else {
-      sort = 'createdAt';
+      sort = 'created_at';
     }
 
     const limit = options.limit && parseInt(options.limit, 10) > 0 ? parseInt(options.limit, 10) : 10;

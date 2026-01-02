@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import httpStatus from 'http-status';
 import { User } from '../models';
 import { IUser } from '../models/user.model';
@@ -13,22 +14,51 @@ export const createUser = async (userBody: any): Promise<IUser> => {
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
-  // Cast to unknown then IUser (or Promise<IUser>) to satisfy TS overloaded return type (Single vs Array)
   const user = await User.create(userBody);
   return user as unknown as IUser;
 };
 
 /**
  * Query for users
- * @param {Object} filter - Mongo filter
+ * @param {Object} filter - Mongo filter + search params (search, scope)
  * @param {Object} options - Query options
- * @param {string} [options.sortBy] - Sort option in the format: sortField:(desc|asc)
- * @param {number} [options.limit] - Maximum number of results per page (default = 10)
- * @param {number} [options.page] - Current page (default = 1)
  * @returns {Promise<QueryResult>}
  */
 export const queryUsers = async (filter: any, options: any): Promise<QueryResult> => {
-  const users = await User.paginate(filter, options);
+  const { search, scope, ...restFilter } = filter;
+  const mongoFilter: any = { ...restFilter };
+
+  if (search) {
+    const searchRegex = new RegExp(search, 'i'); // Case insensitive regex
+    const isObjectId = mongoose.Types.ObjectId.isValid(search);
+    
+    // Logic for different scopes
+    if (scope === 'all') {
+      const orConditions: any[] = [
+        { name: searchRegex },
+        { email: searchRegex }
+      ];
+      if (isObjectId) {
+        orConditions.push({ _id: search });
+      }
+      mongoFilter.$or = orConditions;
+    } 
+    else if (scope === 'name') {
+      mongoFilter.name = searchRegex;
+    } 
+    else if (scope === 'email') {
+      mongoFilter.email = searchRegex;
+    } 
+    else if (scope === 'id') {
+      if (isObjectId) {
+        mongoFilter._id = search;
+      } else {
+        mongoFilter._id = new mongoose.Types.ObjectId();
+      }
+    }
+  }
+
+  const users = await User.paginate(mongoFilter, options);
   return users;
 };
 
@@ -38,6 +68,9 @@ export const queryUsers = async (filter: any, options: any): Promise<QueryResult
  * @returns {Promise<IUser | null>}
  */
 export const getUserById = async (id: string): Promise<IUser | null> => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return null;
+  }
   return User.findById(id);
 };
 

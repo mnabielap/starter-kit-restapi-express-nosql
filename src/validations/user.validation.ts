@@ -17,6 +17,8 @@ export const getUsers = z.object({
     sortBy: z.string().optional(),
     limit: z.coerce.number().int().min(1).optional(),
     page: z.coerce.number().int().min(1).optional(),
+    search: z.string().optional(),
+    scope: z.enum(['all', 'name', 'email', 'id']).optional().default('all'),
   }),
 });
 

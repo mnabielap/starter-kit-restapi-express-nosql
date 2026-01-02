@@ -7,7 +7,7 @@ dotenv.config({ path: path.join(__dirname, '../../.env') });
 const envSchema = z.object({
   NODE_ENV: z.enum(['production', 'development', 'test']),
   PORT: z.coerce.number().default(3000),
-  MONGODB_URI: z.string().url().describe('Mongo DB url'),
+  MONGODB_URL: z.string().url().describe('Mongo DB url'),
   JWT_SECRET: z.string().describe('JWT secret key'),
   JWT_ACCESS_EXPIRATION_MINUTES: z.coerce.number().default(30).describe('minutes after which access tokens expire'),
   JWT_REFRESH_EXPIRATION_DAYS: z.coerce.number().default(30).describe('days after which refresh tokens expire'),
@@ -30,7 +30,7 @@ export const config = {
   env: envVars.data.NODE_ENV,
   port: envVars.data.PORT,
   mongoose: {
-    url: envVars.data.MONGODB_URI,
+    url: envVars.data.MONGODB_URL,
     options: {
       // Mongoose 6+ defaults are good, but can be explicit here if needed
     },
